@@ -53,44 +53,43 @@ Consider a typical blog post. The API response for a single post might look some
 We have two nested entity types within our `article`: `users` and `comments`. Using various `schema`, we can normalize all three entity types down:
 
 ```js
-import { buildSchema, entity } from 'ts-normalizr';
+import { buildSchema, entity, arrayValues } from "ts-normalizr";
 
 interface User {
-  id: string
-  name: string
+    id: string;
+    name: string;
 }
 
 interface Comment {
-  id: string,
-  commenter: User
+    id: string;
+    commenter: User;
 }
 
 interface Article {
-  id: string
-  author: User
-  title: string
-  comments: Comment[]
+    id: string;
+    author: User;
+    title: string;
+    comments: Comment[];
 }
 
 // Define a users schema
-const userSchema = buildSchema(
-  entity<User>().id('id').name('users')
-);
+const userSchema = buildSchema(entity<User>().id("id").name("users"));
 
 // Define your comments schema
 const commentSchema = buildSchema(
-  entity<Comment>().id('id').name('comments')
-    .prop('commenter', userSchema)
+    entity<Comment>().id("id").name("comments").prop("commenter", userSchema)
 );
+
+const commentsSchema = arrayValues(commentSchema);
 
 // Define your article
 const articleSchema = buildSchema(
-  entity<Article>().id('id').name('articles')
-    .prop('author', userSchema)
-    .prop('comments', commentsSchema)
+    entity<Article>()
+        .id("id")
+        .name("articles")
+        .prop("author", userSchema)
+        .prop("comments", commentsSchema)
 );
-
-const normalizedData = articleSchema.normalize(originalData);
 ```
 
 Now, `normalizedData` will be:
